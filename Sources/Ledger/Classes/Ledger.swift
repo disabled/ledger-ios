@@ -80,9 +80,6 @@ public final class Ledger {
                     }
                     objc_sync_exit(self)
                 }
-                DispatchQueue.main.async {
-                    receiptRefreshHandler?(receipt)
-                }
             }
         }
 
@@ -108,6 +105,9 @@ public final class Ledger {
             case .success(let receipt):
                 objc_sync_enter(self)
                 self.receipt = Receipt(dictionary: receipt) ?? .init()
+                DispatchQueue.main.async {
+                    receiptRefreshHandler?(self.receipt)
+                }
                 objc_sync_exit(self)
                 success(self.receipt)
             case .error(let error):

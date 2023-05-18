@@ -48,6 +48,8 @@ public final class Ledger {
     private static var keychain: Keychain = .init(service: Constants.keychainService)
     private static var didInitiatePurchaseFlow: Bool = false
 
+    public static var receiptRefreshHandler: ((Receipt) -> Void)?
+
     public static func start(sharedSecret: String) {
         self.sharedSecret = sharedSecret
         #if targetEnvironment(simulator)
@@ -69,7 +71,7 @@ public final class Ledger {
                 }
             }
 
-            refreshReceipt { (_: Receipt) in
+            refreshReceipt { (receipt: Receipt) in
                 for purchase in purchases where purchase.needsFinishTransaction {
                     SwiftyStoreKit.finishTransaction(purchase.transaction)
                     objc_sync_enter(self)
@@ -77,6 +79,9 @@ public final class Ledger {
                         purchaseEventEmitter.emit(purchaseInfo)
                     }
                     objc_sync_exit(self)
+                }
+                DispatchQueue.main.async {
+                    receiptRefreshHandler?(receipt)
                 }
             }
         }

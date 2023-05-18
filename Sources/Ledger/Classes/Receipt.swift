@@ -5,8 +5,14 @@
 import Foundation
 
 public struct Receipt: Codable {
+    enum CodingKeys: CodingKey {
+        case creationDate
+        case purchases
+    }
+
     public let creationDate: Date
     public var purchases: [String: PurchaseInfo]
+    public var raw: [String: Any] = [:]
 
     public init(purchases: [PurchaseInfo] = []) {
         creationDate = Date()
@@ -17,6 +23,7 @@ public struct Receipt: Codable {
     }
 
     init?(dictionary: [String: Any]) {
+        raw = dictionary
         guard let receiptDict = dictionary["receipt"] as? [String: Any],
               let purchasesDict = receiptDict["in_app"] as? [[String: Any]] else {
             return nil

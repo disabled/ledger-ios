@@ -98,7 +98,7 @@ public final class Ledger {
         }
 
         let validator = AppleReceiptValidator(service: .production, sharedSecret: sharedSecret)
-        SwiftyStoreKit.verifyReceipt(using: validator, forceRefresh: false) { (result: VerifyReceiptResult) in
+        SwiftyStoreKit.verifyReceipt(using: validator, forceRefresh: true) { (result: VerifyReceiptResult) in
             switch result {
             case .success(let receipt):
                 objc_sync_enter(self)

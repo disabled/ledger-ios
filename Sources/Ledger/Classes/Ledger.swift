@@ -38,6 +38,7 @@ public final class Ledger {
     public static var productInfoSource: AnyEventSource<Product> = .init(productInfoEmitter)
 
     public static var skipReceiptValidation: Bool = false
+    public static var automaticallyHandlesPendingTransactions: Bool = true
 
     public static var referenceDate: Date {
         return Clock.now ?? Date()
@@ -55,28 +56,30 @@ public final class Ledger {
         #endif
 
         Clock.sync()
-        SwiftyStoreKit.completeTransactions(atomically: false) { (purchases: [Purchase]) in
-            if skipReceiptValidation {
-                let identifiers = purchases.map { (purchase: Purchase) -> String in
-                    return purchase.productId
-                }
-                fetchProducts(withIdentifiers: identifiers) { (products: [String: Product]) in
-                    objc_sync_enter(self)
-                    for product in products.values {
-                        receipt.purchases[product.identifier] = .init(product: product)
+        if automaticallyHandlesPendingTransactions {
+            SwiftyStoreKit.completeTransactions(atomically: false) { (purchases: [Purchase]) in
+                if skipReceiptValidation {
+                    let identifiers = purchases.map { (purchase: Purchase) -> String in
+                        return purchase.productId
                     }
-                    objc_sync_exit(self)
+                    fetchProducts(withIdentifiers: identifiers) { (products: [String: Product]) in
+                        objc_sync_enter(self)
+                        for product in products.values {
+                            receipt.purchases[product.identifier] = .init(product: product)
+                        }
+                        objc_sync_exit(self)
+                    }
                 }
-            }
 
-            refreshReceipt { (_: Receipt) in
-                for purchase in purchases where purchase.needsFinishTransaction {
-                    SwiftyStoreKit.finishTransaction(purchase.transaction)
-                    objc_sync_enter(self)
-                    if let purchaseInfo = receipt.purchaseInfo(withIdentifier: purchase.productId) {
-                        purchaseEventEmitter.emit(purchaseInfo)
+                refreshReceipt { (_: Receipt) in
+                    for purchase in purchases where purchase.needsFinishTransaction {
+                        SwiftyStoreKit.finishTransaction(purchase.transaction)
+                        objc_sync_enter(self)
+                        if let purchaseInfo = receipt.purchaseInfo(withIdentifier: purchase.productId) {
+                            purchaseEventEmitter.emit(purchaseInfo)
+                        }
+                        objc_sync_exit(self)
                     }
-                    objc_sync_exit(self)
                 }
             }
         }

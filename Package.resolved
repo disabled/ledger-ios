@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Ion",
+        "repositoryURL": "git@github.com:rosberry/ion.git",
+        "state": {
+          "branch": "master",
+          "revision": "536a941f1abff714f50ad8a06f2fe1f05f832494",
+          "version": null
+        }
+      },
+      {
+        "package": "KeychainAccess",
+        "repositoryURL": "git@github.com:kishikawakatsumi/KeychainAccess.git",
+        "state": {
+          "branch": null,
+          "revision": "84e546727d66f1adc5439debad16270d0fdd04e7",
+          "version": "4.2.2"
+        }
+      },
+      {
+        "package": "Kronos",
+        "repositoryURL": "git@github.com:MobileNativeFoundation/Kronos.git",
+        "state": {
+          "branch": null,
+          "revision": "b7f54653a8bb503f42b59ab3160eb11f333b9d3f",
+          "version": "4.2.1"
+        }
+      },
+      {
+        "package": "SwiftyStoreKit",
+        "repositoryURL": "git@github.com:bizz84/SwiftyStoreKit.git",
+        "state": {
+          "branch": null,
+          "revision": "3b54c8eac2840b0cdd576634e83d9ebeb70f847c",
+          "version": "0.16.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

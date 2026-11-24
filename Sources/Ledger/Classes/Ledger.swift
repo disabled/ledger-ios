@@ -47,9 +47,11 @@ public final class Ledger {
     private static var productCache: NSCache<NSString, Product> = .init()
     private static var keychain: Keychain = .init(service: Constants.keychainService)
     private static var didInitiatePurchaseFlow: Bool = false
+    public static var applicationUsername: String = .init()
 
-    public static func start(sharedSecret: String) {
+    public static func start(sharedSecret: String, applicationUsername: String = .init()) {
         self.sharedSecret = sharedSecret
+        self.applicationUsername = applicationUsername
         #if targetEnvironment(simulator)
         skipReceiptValidation = true
         #endif
@@ -159,7 +161,7 @@ public final class Ledger {
             }
 
             didInitiatePurchaseFlow = true
-            SwiftyStoreKit.purchaseProduct(product.storeProduct, atomically: false) { (result: PurchaseResult) in
+            SwiftyStoreKit.purchaseProduct(product.storeProduct, atomically: false, applicationUsername: applicationUsername) { (result: PurchaseResult) in
                 switch result {
                 case let .success(details):
                     if skipReceiptValidation {

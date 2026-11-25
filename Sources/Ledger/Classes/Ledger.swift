@@ -66,8 +66,12 @@ public final class Ledger {
                     }
                     fetchProducts(withIdentifiers: identifiers) { (products: [String: Product]) in
                         objc_sync_enter(self)
-                        for product in products.values {
-                            receipt.purchases[product.identifier] = .init(product: product)
+                        for purchase in purchases {
+                            guard let product = products[purchase.productId] else {
+                                continue
+                            }
+                            let transactionIdentifier = purchase.originalTransaction?.transactionIdentifier
+                            receipt.purchases[purchase.productId] = .init(product: product, transactionIdentifier: transactionIdentifier)
                         }
                         objc_sync_exit(self)
                     }
@@ -169,7 +173,8 @@ public final class Ledger {
                 case let .success(details):
                     if skipReceiptValidation {
                         objc_sync_enter(self)
-                        receipt.purchases[identifier] = .init(product: product)
+                        receipt.purchases[identifier] = .init(product: product,
+                                                              transactionIdentifier: details.originalTransaction?.transactionIdentifier)
                         objc_sync_exit(self)
                     }
 

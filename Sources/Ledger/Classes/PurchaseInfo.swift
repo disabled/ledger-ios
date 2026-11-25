@@ -14,15 +14,17 @@ public struct PurchaseInfo: Codable {
     public let type: PurchaseType
     public let expirationDate: Date
     public let quantity: Int
+    public let transactionIdentifier: String?
 
     public init(identifier: String, type: PurchaseType, expirationDate: Date = .distantFuture, quantity: Int = 1) {
         self.identifier = identifier
         self.type = type
         self.expirationDate = expirationDate
         self.quantity = quantity
+        self.transactionIdentifier = nil
     }
 
-    init(product: Product) {
+    init(product: Product, transactionIdentifier: String?) {
         identifier = product.identifier
         if product.period?.numberOfUnits != nil {
             type = .subscription
@@ -47,6 +49,7 @@ public struct PurchaseInfo: Codable {
             expirationDate = .distantFuture
         }
         quantity = 1
+        self.transactionIdentifier = transactionIdentifier
     }
 
     init?(dictionary: [String: Any]) {
@@ -56,6 +59,7 @@ public struct PurchaseInfo: Codable {
 
         self.identifier = identifier
         quantity = (dictionary["quantity"] as? Int) ?? 1
+        transactionIdentifier = dictionary["original_transaction_id"] as? String
         if let expirationTimestampString = dictionary["expires_date_ms"] as? String,
            let expirationTimestamp = TimeInterval(expirationTimestampString) {
             type = .subscription
